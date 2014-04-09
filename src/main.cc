@@ -30,11 +30,31 @@ Handle<Value> Import(const Arguments& args) {
   return scope.Close(PyObject2JS::FromPyObject(args, pymodule));
 }
 
+Handle<Value> String2Py(const Arguments& args) {
+  HandleScope scope;
+  char * cstring;
+
+  if (args.Length() > 1) {
+    ThrowException(Exception::TypeError(String::New("Too many arguments")));
+    return scope.Close(Undefined());
+  } else if (args.Length() == 1) {
+    cstring = js2cstring(args[0]->ToString());
+  } else {
+    cstring = new char[0];
+  }
+
+  PyObject * pymodule = PyString_FromString(cstring);
+
+  return scope.Close(PyObject2JS::FromPyObject(args, pymodule));
+}
+
 void init(Handle<Object> exports) {
     Py_Initialize();
     PyObject2JS::Init();
     exports->Set(String::NewSymbol("import"),
 		 FunctionTemplate::New(Import)->GetFunction());
+    exports->Set(String::NewSymbol("String"),
+		 FunctionTemplate::New(String2Py)->GetFunction());
 }
 
 NODE_MODULE(py2node, init)
