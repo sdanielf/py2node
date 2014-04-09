@@ -85,16 +85,16 @@ Handle<Value> String2Py(const Arguments& args) {
 }
 
 void init(Handle<Object> exports) {
-    Py_Initialize();
-    PyObject2JS::Init();
-    exports->Set(String::NewSymbol("Int"),
-		 FunctionTemplate::New(Int2Py)->GetFunction());
-    exports->Set(String::NewSymbol("import"),
-		 FunctionTemplate::New(Import)->GetFunction());
-    exports->Set(String::NewSymbol("Float"),
-		 FunctionTemplate::New(Float2Py)->GetFunction());
-    exports->Set(String::NewSymbol("String"),
-		 FunctionTemplate::New(String2Py)->GetFunction());
+  Py_Initialize();
+  PyObject2JS::Init();
+  exports->Set(String::NewSymbol("Int"),
+   FunctionTemplate::New(Int2Py)->GetFunction());
+  exports->Set(String::NewSymbol("import"),
+   FunctionTemplate::New(Import)->GetFunction());
+  exports->Set(String::NewSymbol("Float"),
+   FunctionTemplate::New(Float2Py)->GetFunction());
+  exports->Set(String::NewSymbol("String"),
+   FunctionTemplate::New(String2Py)->GetFunction());
 }
 
 NODE_MODULE(py2node, init)
