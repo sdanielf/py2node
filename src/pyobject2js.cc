@@ -31,6 +31,8 @@ void PyObject2JS::Init() {
 		         FunctionTemplate::New(hasAttr)->GetFunction());
   tpl->PrototypeTemplate()->Set(String::NewSymbol("toBool"),
 		         FunctionTemplate::New(toBool)->GetFunction());
+  tpl->PrototypeTemplate()->Set(String::NewSymbol("toNumber"),
+		         FunctionTemplate::New(toNumber)->GetFunction());
   tpl->PrototypeTemplate()->Set(String::NewSymbol("toString"),
 		         FunctionTemplate::New(toString)->GetFunction());
   tpl->PrototypeTemplate()->Set(String::NewSymbol("toRepr"),
@@ -111,6 +113,13 @@ Handle<Value> PyObject2JS::toBool(const Arguments& args) {
   HandleScope scope;
   PyObject2JS * obj = ObjectWrap::Unwrap<PyObject2JS>(args.Holder());
   return scope.Close(Boolean::New(PyObject_IsTrue(obj->pyobject)));
+}
+
+Handle<Value> PyObject2JS::toNumber(const Arguments& args) {
+  HandleScope scope;
+  PyObject2JS * obj = ObjectWrap::Unwrap<PyObject2JS>(args.Holder());
+  return scope.Close(Number::New(PyFloat_AsDouble(
+          PyNumber_Float(obj->pyobject))));
 }
 
 Handle<Value> PyObject2JS::toRepr(const Arguments& args) {

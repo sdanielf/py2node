@@ -1,6 +1,7 @@
 #ifndef PYOBJECT2JS_H
 #define PYOBJECT2JS_H
 
+#include <v8.h>
 #include <node.h>
 #include <Python.h>
 
@@ -23,6 +24,7 @@ class PyObject2JS : public node::ObjectWrap {
   static v8::Handle<v8::Value> getAttr(const v8::Arguments& args);
   static v8::Handle<v8::Value> hasAttr(const v8::Arguments& args);
   static v8::Handle<v8::Value> toBool(const v8::Arguments& args);
+  static v8::Handle<v8::Value> toNumber(const v8::Arguments& args);
   static v8::Handle<v8::Value> toRepr(const v8::Arguments& args);
   static v8::Handle<v8::Value> toString(const v8::Arguments& args);
 };
