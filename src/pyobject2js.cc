@@ -76,9 +76,15 @@ PyObject2JS::FromPyObject(const Arguments& args, PyObject* pyobject) {
 
 Handle<Value> PyObject2JS::call(const Arguments& args) {
   HandleScope scope;
+  int argc = args.Length();
   PyObject2JS * obj = ObjectWrap::Unwrap<PyObject2JS>(args.Holder());
-  return scope.Close(FromPyObject(args,
-			          PyObject_CallObject(obj->pyobject, NULL)));
+
+  PyObject * list = PyTuple_New(argc);
+  for (int i = 0; i < argc; i++) {
+    PyObject2JS * arg = ObjectWrap::Unwrap<PyObject2JS>(args[i]->ToObject());
+    PyTuple_SetItem(list, i, arg->pyobject);
+  }
+  return scope.Close(FromPyObject(args, PyObject_CallObject(obj->pyobject, list)));
 }
 
 Handle<Value> PyObject2JS::dir(const Arguments& args) {
