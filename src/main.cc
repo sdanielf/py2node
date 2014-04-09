@@ -7,6 +7,24 @@
 
 using namespace v8;
 
+Handle<Value> Int2Py(const Arguments& args) {
+  HandleScope scope;
+  Py_ssize_t number;
+
+  if (args.Length() > 1) {
+    ThrowException(Exception::TypeError(String::New("Too many arguments")));
+    return scope.Close(Undefined());
+  } else if (args.Length() == 1) {
+    number = args[0]->ToNumber()->Value();
+  } else {
+    number = 0;
+  }
+
+  PyObject * pymodule = PyInt_FromSsize_t(number);
+
+  return scope.Close(PyObject2JS::FromPyObject(args, pymodule));
+}
+
 Handle<Value> Import(const Arguments& args) {
   HandleScope scope;
   if (args.Length() < 1) {
@@ -51,6 +69,8 @@ Handle<Value> String2Py(const Arguments& args) {
 void init(Handle<Object> exports) {
     Py_Initialize();
     PyObject2JS::Init();
+    exports->Set(String::NewSymbol("Int"),
+		 FunctionTemplate::New(Int2Py)->GetFunction());
     exports->Set(String::NewSymbol("import"),
 		 FunctionTemplate::New(Import)->GetFunction());
     exports->Set(String::NewSymbol("String"),
