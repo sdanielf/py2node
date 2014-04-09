@@ -7,6 +7,24 @@
 
 using namespace v8;
 
+Handle<Value> Float2Py(const Arguments& args) {
+  HandleScope scope;
+  double number;
+
+  if (args.Length() > 1) {
+    ThrowException(Exception::TypeError(String::New("Too many arguments")));
+    return scope.Close(Undefined());
+  } else if (args.Length() == 1) {
+    number = args[0]->ToNumber()->Value();
+  } else {
+    number = 0;
+  }
+
+  PyObject * pymodule = PyFloat_FromDouble(number);
+
+  return scope.Close(PyObject2JS::FromPyObject(args, pymodule));
+}
+
 Handle<Value> Int2Py(const Arguments& args) {
   HandleScope scope;
   Py_ssize_t number;
@@ -73,6 +91,8 @@ void init(Handle<Object> exports) {
 		 FunctionTemplate::New(Int2Py)->GetFunction());
     exports->Set(String::NewSymbol("import"),
 		 FunctionTemplate::New(Import)->GetFunction());
+    exports->Set(String::NewSymbol("Float"),
+		 FunctionTemplate::New(Float2Py)->GetFunction());
     exports->Set(String::NewSymbol("String"),
 		 FunctionTemplate::New(String2Py)->GetFunction());
 }
