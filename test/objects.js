@@ -18,18 +18,30 @@
 var chai = require("chai"),
     expect = chai.expect,
     assert = chai.assert,
-    py2node = require("../");
+    py2node = require('../');
 
-describe("#py2node.Bool", function (){
-  it('should create python booleans with values True and False',
-     function () {
-       truebool = py2node.Bool(true);
-       falsebool = py2node.Bool(false);
-     });
-  it('should convert Python values into JavaScript booleans',
-     function () {
-       var msg ='objects are not converted correctly' 
-       assert.ok(truebool.toBool(), 'True ' + msg);
-       assert.notOk(falsebool.toBool(), 'False ' + msg);
+
+describe('Objects', function () {
+  describe('#Booleans', function () {
+    it('should create python booleans with values True and False',
+      function () {
+        truebool = py2node.Bool(true);
+        falsebool = py2node.Bool(false);
+    });
+    it('should convert Python values into JavaScript booleans',
+      function () {
+        var msg ='objects are not converted correctly' 
+        assert.ok(truebool.toBool(), 'True ' + msg);
+        assert.notOk(falsebool.toBool(), 'False ' + msg);
+    });
+  });
+
+  describe('#Attributes', function () {
+    it('should verify the existence of an attribute', function () {
+      var pyobject = py2node.String('Hello World');
+      assert.ok(pyobject.hasAttr('__str__'), 'attributes are not verified');
+      assert.notOk(pyobject.hasAttr('false'),
+                   'verification of attributes does not work')
+    });
   });
 });
