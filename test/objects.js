@@ -21,9 +21,9 @@ var chai = require("chai"),
     py2node = require('../');
 
 
-describe('Objects', function () {
+describe('PyObject', function () {
   describe('#Booleans', function () {
-    it('should create python booleans with values True and False',
+    it('should create Python booleans with values True and False',
       function () {
         truebool = py2node.Bool(true);
         falsebool = py2node.Bool(false);
