@@ -24,6 +24,25 @@
 
 using namespace v8;
 
+Handle<Value> Bool2Py(const Arguments& args) {
+  HandleScope scope;
+  bool boolean;
+
+  if (args.Length() > 1) {
+    ThrowException(Exception::TypeError(String::New("Too many arguments")));
+    return scope.Close(Undefined());
+  } else if (args.Length() == 1) {
+    boolean = args[0]->ToBoolean()->Value();
+  } else {
+    boolean = false;
+  }
+
+  PyObject * pyboolean;
+  pyboolean = boolean ? Py_True : Py_False;
+
+  return scope.Close(PyObject2JS::FromPyObject(args, pyboolean));
+}
+
 Handle<Value> Float2Py(const Arguments& args) {
   HandleScope scope;
   double number;
@@ -37,9 +56,9 @@ Handle<Value> Float2Py(const Arguments& args) {
     number = 0;
   }
 
-  PyObject * pymodule = PyFloat_FromDouble(number);
+  PyObject * pyfloat = PyFloat_FromDouble(number);
 
-  return scope.Close(PyObject2JS::FromPyObject(args, pymodule));
+  return scope.Close(PyObject2JS::FromPyObject(args, pyfloat));
 }
 
 Handle<Value> Int2Py(const Arguments& args) {
@@ -55,9 +74,9 @@ Handle<Value> Int2Py(const Arguments& args) {
     number = 0;
   }
 
-  PyObject * pymodule = PyInt_FromSsize_t(number);
+  PyObject * pyint = PyInt_FromSsize_t(number);
 
-  return scope.Close(PyObject2JS::FromPyObject(args, pymodule));
+  return scope.Close(PyObject2JS::FromPyObject(args, pyint));
 }
 
 Handle<Value> Import(const Arguments& args) {
@@ -104,6 +123,8 @@ Handle<Value> String2Py(const Arguments& args) {
 void init(Handle<Object> exports) {
   Py_Initialize();
   PyObject2JS::Init();
+  exports->Set(String::NewSymbol("Bool"),
+   FunctionTemplate::New(Bool2Py)->GetFunction());
   exports->Set(String::NewSymbol("Int"),
    FunctionTemplate::New(Int2Py)->GetFunction());
   exports->Set(String::NewSymbol("import"),
