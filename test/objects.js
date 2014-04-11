@@ -29,6 +29,10 @@ describe('PyObject', function () {
       assert.notOk(pyobject.hasAttr('false'),
                    'verification of attributes does not work')
     });
+    it('should get an attribute', function (){
+      var math = py2node.import('math');
+      expect(math.getAttr('pi').toNumber()).to.not.be.equal(-1);
+    });
   });
 
   describe('#Booleans', function () {
