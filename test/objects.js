@@ -22,6 +22,15 @@ var chai = require("chai"),
 
 
 describe('PyObject', function () {
+  describe('#Attributes', function () {
+    it('should verify the existence of an attribute', function () {
+      var pyobject = py2node.String('Hello World');
+      assert.ok(pyobject.hasAttr('__str__'), 'attributes are not verified');
+      assert.notOk(pyobject.hasAttr('false'),
+                   'verification of attributes does not work')
+    });
+  });
+
   describe('#Booleans', function () {
     it('should create Python booleans with values True and False',
       function () {
@@ -36,12 +45,16 @@ describe('PyObject', function () {
     });
   });
 
-  describe('#Attributes', function () {
-    it('should verify the existence of an attribute', function () {
-      var pyobject = py2node.String('Hello World');
-      assert.ok(pyobject.hasAttr('__str__'), 'attributes are not verified');
-      assert.notOk(pyobject.hasAttr('false'),
-                   'verification of attributes does not work')
+  describe('#Strings', function () {
+    var string;
+    it('should create Python strings from JS objects', function (){
+      string = py2node.String('Hello world');
+    });
+    it('should convert Python objects to JS strings', function (){
+      expect(string.toString()).to.be.equal('Hello world');
+    });
+    it('should get the representation of Python objects', function (){
+      expect(string.toRepr()).to.be.equal("'Hello world'");
     });
   });
 });
