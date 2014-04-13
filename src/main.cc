@@ -43,6 +43,34 @@ Handle<Value> Bool2Py(const Arguments& args) {
   return scope.Close(PyObject2JS::FromPyObject(args, pyboolean));
 }
 
+Handle<Value> Dict2Py(const Arguments& args) {
+  HandleScope scope;
+  Local<Object> object;
+
+  if (args.Length() > 1) {
+    ThrowException(Exception::TypeError(String::New("Too many arguments")));
+    return scope.Close(Undefined());
+  } else if (args.Length() == 1) {
+    object = args[0]->ToObject();
+  } else {
+    object = Object::New();
+  }
+
+  Local<Array> keys = object->GetOwnPropertyNames();
+  int length = keys->Length();
+  PyObject * dict = PyDict_New();
+  for (int i = 0; i < length; i++) {
+    Handle<Value> key = keys->Get(i);
+    char * ckey = js2cstring(key->ToString());
+    Handle<Value> value = object->Get(key);
+    PyObject2JS * pyvalue = node::ObjectWrap::Unwrap<PyObject2JS>(
+        value->ToObject());
+    PyDict_SetItemString(dict, ckey, pyvalue->pyobject);
+  }
+
+  return scope.Close(PyObject2JS::FromPyObject(args, dict));
+}
+
 Handle<Value> Float2Py(const Arguments& args) {
   HandleScope scope;
   double number;
@@ -175,6 +203,8 @@ void init(Handle<Object> exports) {
   PyObject2JS::Init();
   exports->Set(String::NewSymbol("Bool"),
    FunctionTemplate::New(Bool2Py)->GetFunction());
+  exports->Set(String::NewSymbol("Dict"),
+   FunctionTemplate::New(Dict2Py)->GetFunction());
   exports->Set(String::NewSymbol("Float"),
    FunctionTemplate::New(Float2Py)->GetFunction());
   exports->Set(String::NewSymbol("Int"),
