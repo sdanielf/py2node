@@ -102,6 +102,31 @@ Handle<Value> Import(const Arguments& args) {
   return scope.Close(PyObject2JS::FromPyObject(args, pymodule));
 }
 
+Handle<Value> List2Py(const Arguments& args) {
+  HandleScope scope;
+  Local<Array> array;
+
+  if (args.Length() > 1) {
+    ThrowException(Exception::TypeError(String::New("Too many arguments")));
+    return scope.Close(Undefined());
+  } else if (args.Length() == 1) {
+    array = Local<Array>::Cast(args[0]);
+  } else {
+    array = Array::New();
+  }
+
+  int length = array->Length();
+  PyObject * list = PyList_New(0);
+  for (int i = 0; i < length; i++) {
+    Local<Value> element = array->Get(i);
+    PyObject2JS * item = node::ObjectWrap::Unwrap<PyObject2JS>(
+        element->ToObject());
+    PyList_Append(list, item->pyobject);
+  }
+
+  return scope.Close(PyObject2JS::FromPyObject(args, list));
+}
+
 Handle<Value> String2Py(const Arguments& args) {
   HandleScope scope;
   char * cstring;
@@ -115,9 +140,9 @@ Handle<Value> String2Py(const Arguments& args) {
     cstring = new char[0];
   }
 
-  PyObject * pymodule = PyString_FromString(cstring);
+  PyObject * pystring = PyString_FromString(cstring);
 
-  return scope.Close(PyObject2JS::FromPyObject(args, pymodule));
+  return scope.Close(PyObject2JS::FromPyObject(args, pystring));
 }
 
 void init(Handle<Object> exports) {
@@ -125,12 +150,14 @@ void init(Handle<Object> exports) {
   PyObject2JS::Init();
   exports->Set(String::NewSymbol("Bool"),
    FunctionTemplate::New(Bool2Py)->GetFunction());
+  exports->Set(String::NewSymbol("Float"),
+   FunctionTemplate::New(Float2Py)->GetFunction());
   exports->Set(String::NewSymbol("Int"),
    FunctionTemplate::New(Int2Py)->GetFunction());
   exports->Set(String::NewSymbol("import"),
    FunctionTemplate::New(Import)->GetFunction());
-  exports->Set(String::NewSymbol("Float"),
-   FunctionTemplate::New(Float2Py)->GetFunction());
+  exports->Set(String::NewSymbol("List"),
+   FunctionTemplate::New(List2Py)->GetFunction());
   exports->Set(String::NewSymbol("String"),
    FunctionTemplate::New(String2Py)->GetFunction());
 }
