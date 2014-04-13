@@ -145,6 +145,31 @@ Handle<Value> String2Py(const Arguments& args) {
   return scope.Close(PyObject2JS::FromPyObject(args, pystring));
 }
 
+Handle<Value> Tuple2Py(const Arguments& args) {
+  HandleScope scope;
+  Local<Array> array;
+
+  if (args.Length() > 1) {
+    ThrowException(Exception::TypeError(String::New("Too many arguments")));
+    return scope.Close(Undefined());
+  } else if (args.Length() == 1) {
+    array = Local<Array>::Cast(args[0]);
+  } else {
+    array = Array::New();
+  }
+
+  int length = array->Length();
+  PyObject * tuple = PyTuple_New(length);
+  for (int i = 0; i < length; i++) {
+    Local<Value> element = array->Get(i);
+    PyObject2JS * item = node::ObjectWrap::Unwrap<PyObject2JS>(
+        element->ToObject());
+    PyTuple_SetItem(tuple, i, item->pyobject);
+  }
+
+  return scope.Close(PyObject2JS::FromPyObject(args, tuple));
+}
+
 void init(Handle<Object> exports) {
   Py_Initialize();
   PyObject2JS::Init();
@@ -160,6 +185,8 @@ void init(Handle<Object> exports) {
    FunctionTemplate::New(List2Py)->GetFunction());
   exports->Set(String::NewSymbol("String"),
    FunctionTemplate::New(String2Py)->GetFunction());
+  exports->Set(String::NewSymbol("Tuple"),
+   FunctionTemplate::New(List2Py)->GetFunction());
 }
 
 NODE_MODULE(py2node, init)
