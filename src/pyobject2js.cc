@@ -42,6 +42,8 @@ void PyObject2JS::Init() {
 		         FunctionTemplate::New(dir)->GetFunction());
   tpl->PrototypeTemplate()->Set(String::NewSymbol("call"),
 		         FunctionTemplate::New(call)->GetFunction());
+  tpl->PrototypeTemplate()->Set(String::NewSymbol("forEach"),
+		         FunctionTemplate::New(forEach)->GetFunction());
   tpl->PrototypeTemplate()->Set(String::NewSymbol("getAttr"),
 		         FunctionTemplate::New(getAttr)->GetFunction());
   tpl->PrototypeTemplate()->Set(String::NewSymbol("getItem"),
@@ -128,6 +130,23 @@ Handle<Value> PyObject2JS::dir(const Arguments& args) {
     jsarray->Set(Number::New(i), String::New(PyString_AsString(item)));
   }
   return scope.Close(jsarray);
+}
+
+Handle<Value> PyObject2JS::forEach(const Arguments& args) {
+  HandleScope scope;
+  Handle<Object> holder = args.Holder();
+  PyObject2JS * object = ObjectWrap::Unwrap<PyObject2JS>(holder);
+  PyObject * iter = PyObject_GetIter(object->pyobject);
+  PyObject * current;
+  Handle<Function> callback = Handle<Function>::Cast(args[0]->ToObject());
+  current = PyIter_Next(iter);
+  while (!PyErr_Occurred() && current != NULL) {
+    Handle<Value> arg[1] = {FromPyObject(args, current)};
+    callback->Call(holder, 1, arg);
+    current=PyIter_Next(iter);
+  }
+  PyErr_Clear();
+  return scope.Close(FromPyObject(args, Py_None));
 }
 
 Handle<Value> PyObject2JS::getAttr(const Arguments& args) {

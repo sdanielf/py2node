@@ -38,6 +38,7 @@ class PyObject2JS : public node::ObjectWrap {
 
   static v8::Handle<v8::Value> call(const v8::Arguments& args);
   static v8::Handle<v8::Value> dir(const v8::Arguments& args);
+  static v8::Handle<v8::Value> forEach(const v8::Arguments& args);
   static v8::Handle<v8::Value> getAttr(const v8::Arguments& args);
   static v8::Handle<v8::Value> getItem(const v8::Arguments& args);
   static v8::Handle<v8::Value> hasAttr(const v8::Arguments& args);
