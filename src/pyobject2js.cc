@@ -44,6 +44,8 @@ void PyObject2JS::Init() {
 		         FunctionTemplate::New(call)->GetFunction());
   tpl->PrototypeTemplate()->Set(String::NewSymbol("getAttr"),
 		         FunctionTemplate::New(getAttr)->GetFunction());
+  tpl->PrototypeTemplate()->Set(String::NewSymbol("getItem"),
+		         FunctionTemplate::New(getItem)->GetFunction());
   tpl->PrototypeTemplate()->Set(String::NewSymbol("hasAttr"),
 		         FunctionTemplate::New(hasAttr)->GetFunction());
   tpl->PrototypeTemplate()->Set(String::NewSymbol("length"),
@@ -135,10 +137,11 @@ Handle<Value> PyObject2JS::getAttr(const Arguments& args) {
 				  js2cstring(args[0]->ToString()))));
 }
 
-Handle<Value> PyObject2JS::length(const Arguments& args) {
+Handle<Value> PyObject2JS::getItem(const Arguments& args) {
   HandleScope scope;
   PyObject2JS * obj = ObjectWrap::Unwrap<PyObject2JS>(args.Holder());
-  return scope.Close(Number::New(PyObject_Length(obj->pyobject)));
+  PyObject2JS * key = ObjectWrap::Unwrap<PyObject2JS>(args[0]->ToObject());
+  return scope.Close(FromPyObject(args, PyObject_GetItem(obj->pyobject, key->pyobject)));
 }
 
 Handle<Value> PyObject2JS::hasAttr(const Arguments& args) {
@@ -146,6 +149,12 @@ Handle<Value> PyObject2JS::hasAttr(const Arguments& args) {
   PyObject2JS * obj = ObjectWrap::Unwrap<PyObject2JS>(args.Holder());
   return scope.Close(Boolean::New(PyObject_HasAttrString(obj->pyobject,
 				  js2cstring(args[0]->ToString()))));
+}
+
+Handle<Value> PyObject2JS::length(const Arguments& args) {
+  HandleScope scope;
+  PyObject2JS * obj = ObjectWrap::Unwrap<PyObject2JS>(args.Holder());
+  return scope.Close(Number::New(PyObject_Length(obj->pyobject)));
 }
 
 Handle<Value> PyObject2JS::toBool(const Arguments& args) {
