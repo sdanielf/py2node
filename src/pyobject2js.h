@@ -39,12 +39,14 @@ class PyObject2JS : public node::ObjectWrap {
   static v8::Handle<v8::Value> call(const v8::Arguments& args);
   static v8::Handle<v8::Value> dir(const v8::Arguments& args);
   static v8::Handle<v8::Value> delAttr(const v8::Arguments& args);
+  static v8::Handle<v8::Value> delItem(const v8::Arguments& args);
   static v8::Handle<v8::Value> forEach(const v8::Arguments& args);
   static v8::Handle<v8::Value> getAttr(const v8::Arguments& args);
   static v8::Handle<v8::Value> getItem(const v8::Arguments& args);
   static v8::Handle<v8::Value> hasAttr(const v8::Arguments& args);
   static v8::Handle<v8::Value> length(const v8::Arguments& args);
   static v8::Handle<v8::Value> setAttr(const v8::Arguments& args);
+  static v8::Handle<v8::Value> setItem(const v8::Arguments& args);
   static v8::Handle<v8::Value> toBool(const v8::Arguments& args);
   static v8::Handle<v8::Value> toNumber(const v8::Arguments& args);
   static v8::Handle<v8::Value> toRepr(const v8::Arguments& args);

@@ -42,6 +42,8 @@ void PyObject2JS::Init() {
 		         FunctionTemplate::New(dir)->GetFunction());
   tpl->PrototypeTemplate()->Set(String::NewSymbol("delAttr"),
 		         FunctionTemplate::New(delAttr)->GetFunction());
+  tpl->PrototypeTemplate()->Set(String::NewSymbol("delItem"),
+		         FunctionTemplate::New(delItem)->GetFunction());
   tpl->PrototypeTemplate()->Set(String::NewSymbol("call"),
 		         FunctionTemplate::New(call)->GetFunction());
   tpl->PrototypeTemplate()->Set(String::NewSymbol("forEach"),
@@ -56,6 +58,8 @@ void PyObject2JS::Init() {
 		         FunctionTemplate::New(length)->GetFunction());
   tpl->PrototypeTemplate()->Set(String::NewSymbol("setAttr"),
 		         FunctionTemplate::New(setAttr)->GetFunction());
+  tpl->PrototypeTemplate()->Set(String::NewSymbol("setItem"),
+		         FunctionTemplate::New(setItem)->GetFunction());
   tpl->PrototypeTemplate()->Set(String::NewSymbol("toBool"),
 		         FunctionTemplate::New(toBool)->GetFunction());
   tpl->PrototypeTemplate()->Set(String::NewSymbol("toNumber"),
@@ -126,7 +130,13 @@ Handle<Value> PyObject2JS::delAttr(const Arguments& args) {
   HandleScope scope;
   PyObject2JS * obj = ObjectWrap::Unwrap<PyObject2JS>(args.Holder());
   PyObject_DelAttrString(obj->pyobject, js2cstring(args[0]->ToString()));
-  PyErr_Print();
+  return scope.Close(Undefined());
+}
+
+Handle<Value> PyObject2JS::delItem(const Arguments& args) {
+  HandleScope scope;
+  PyObject2JS * obj = ObjectWrap::Unwrap<PyObject2JS>(args.Holder());
+  PyObject_DelItem(obj->pyobject, PyString_FromString(js2cstring(args[0]->ToString())));
   return scope.Close(Undefined());
 }
 
@@ -172,7 +182,8 @@ Handle<Value> PyObject2JS::getItem(const Arguments& args) {
   HandleScope scope;
   PyObject2JS * obj = ObjectWrap::Unwrap<PyObject2JS>(args.Holder());
   PyObject2JS * key = ObjectWrap::Unwrap<PyObject2JS>(args[0]->ToObject());
-  return scope.Close(FromPyObject(args, PyObject_GetItem(obj->pyobject, key->pyobject)));
+  return scope.Close(FromPyObject(args,
+        PyObject_GetItem(obj->pyobject, key->pyobject)));
 }
 
 Handle<Value> PyObject2JS::hasAttr(const Arguments& args) {
@@ -194,7 +205,15 @@ Handle<Value> PyObject2JS::setAttr(const Arguments& args) {
   PyObject2JS * attribute = ObjectWrap::Unwrap<PyObject2JS>(args[1]->ToObject());
   PyObject_SetAttrString(obj->pyobject,
       js2cstring(args[0]->ToString()), attribute->pyobject);
-  PyErr_Print();
+  return scope.Close(Undefined());
+}
+
+Handle<Value> PyObject2JS::setItem(const Arguments& args) {
+  HandleScope scope;
+  PyObject2JS * obj = ObjectWrap::Unwrap<PyObject2JS>(args.Holder());
+  PyObject2JS * attribute = ObjectWrap::Unwrap<PyObject2JS>(args[1]->ToObject());
+  PyObject_SetItem(obj->pyobject,
+      PyString_FromString(js2cstring(args[0]->ToString())), attribute->pyobject);
   return scope.Close(Undefined());
 }
 
